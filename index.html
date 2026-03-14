@@ -920,24 +920,28 @@ function submitResults() {
   data.score = score;
 
   if (SHEET_URL && SHEET_URL !== "PASTE_URL_HERE") {
-    // Use GET with URL params (works cross-origin with Google Apps Script)
     var url = SHEET_URL +
       "?name=" + encodeURIComponent(data.name) +
       "&country=" + encodeURIComponent(data.country) +
       "&score=" + data.score +
       "&attempts=" + data.attempts;
 
-    // Use image trick to avoid CORS issues
-    var img = new Image();
-    img.onload = function() { showSubmitted(); };
-    img.onerror = function() { showSubmitted(); };
-    img.src = url;
+    // Hidden iframe — most reliable for Google Apps Script
+    var iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = url;
+    document.body.appendChild(iframe);
 
-    // Backup: also try fetch
-    fetch(url, { mode: "no-cors" }).catch(function() {});
+    // Backup: script tag
+    var script = document.createElement("script");
+    script.src = url;
+    document.body.appendChild(script);
 
-    // Show submitted after 3 seconds regardless
-    setTimeout(showSubmitted, 3000);
+    setTimeout(function() {
+      showSubmitted();
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }, 4000);
   } else {
     showSubmitted();
   }
