@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mama Mary Family Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', 'Calibri', Arial, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a1a;
+    line-height: 1.6;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 100%);
+    color: white;
+    text-align: center;
+    padding: 30px 20px;
+    position: relative;
+  }
+  .header h1 { font-size: 26px; margin-bottom: 5px; letter-spacing: 1px; }
+  .header p { font-size: 14px; opacity: 0.85; font-style: italic; }
+  .header .gold-line {
+    width: 80px; height: 3px;
+    background: #c9a84c;
+    margin: 12px auto;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* Registration Card */
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .card h2 {
+    font-size: 18px;
+    color: #1a3a5c;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #c9a84c;
+  }
+
+  .form-row {
+    margin-bottom: 15px;
+  }
+  .form-row label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  .form-row input, .form-row select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+  }
+  .form-row input:focus, .form-row select:focus {
+    outline: none;
+    border-color: #2c5f8a;
+  }
+
+  /* Section headers */
+  .section-header {
+    background: #1a3a5c;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin: 25px 0 15px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* Question Card */
+  .question-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-left: 4px solid #c9a84c;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .question-card.correct {
+    border-left-color: #28a745;
+    background: #f8fff9;
+  }
+  .question-card.wrong {
+    border-left-color: #dc3545;
+    background: #fff8f8;
+  }
+  .question-card.locked {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .q-number {
+    display: inline-block;
+    background: #c9a84c;
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 32px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-right: 10px;
+    vertical-align: top;
+  }
+  .question-card.correct .q-number { background: #28a745; }
+  .question-card.wrong .q-number { background: #dc3545; }
+
+  .q-text {
+    display: inline-block;
+    width: calc(100% - 50px);
+    vertical-align: top;
+  }
+  .q-text .lang-en { font-weight: 600; color: #1a3a5c; font-size: 15px; }
+  .q-text .lang-other { font-size: 13px; color: #666; margin-top: 2px; }
+  .q-text .lang-label {
+    display: inline-block;
+    background: #e8eef4;
+    color: #1a3a5c;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+
+  .options-list {
+    margin-top: 15px;
+    list-style: none;
+  }
+  .options-list li {
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border: 2px solid #e8eef4;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+  .options-list li:hover { border-color: #2c5f8a; background: #f5f8fc; }
+  .options-list li.selected { border-color: #2c5f8a; background: #e3ecf5; }
+  .options-list li.correct-answer { border-color: #28a745; background: #d4edda; }
+  .options-list li.wrong-answer { border-color: #dc3545; background: #f8d7da; }
+  .options-list li .opt-langs { font-size: 12px; color: #777; margin-top: 4px; }
+
+  .question-card.locked .options-list li { cursor: default; }
+  .question-card.locked .options-list li:hover { border-color: #e8eef4; background: inherit; }
+
+  /* Status badge */
+  .status-badge {
+    float: right;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+  .status-badge.pass { background: #d4edda; color: #155724; }
+  .status-badge.fail { background: #f8d7da; color: #721c24; }
+  .status-badge.retry { background: #fff3cd; color: #856404; }
+
+  /* Score Bar */
+  .score-bar {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+  }
+  .score-display {
+    font-size: 36px;
+    font-weight: 800;
+    color: #1a3a5c;
+  }
+  .score-display.passing { color: #28a745; }
+  .score-display.failing { color: #dc3545; }
+  .score-label { font-size: 13px; color: #888; margin-top: 2px; }
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e8eef4;
+    border-radius: 4px;
+    margin: 12px 0 5px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease, background 0.3s;
+  }
+  .progress-fill.passing { background: linear-gradient(90deg, #28a745, #34ce57); }
+  .progress-fill.failing { background: linear-gradient(90deg, #dc3545, #e8606d); }
+  .progress-fill.neutral { background: linear-gradient(90deg, #c9a84c, #dbb85c); }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 14px 40px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary { background: #1a3a5c; color: white; }
+  .btn-primary:hover { background: #2c5f8a; transform: translateY(-1px); }
+  .btn-success { background: #28a745; color: white; }
+  .btn-success:hover { background: #218838; transform: translateY(-1px); }
+  .btn-warning { background: #c9a84c; color: white; }
+  .btn-warning:hover { background: #b8973d; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-container { text-align: center; margin: 25px 0; }
+
+  /* Results Panel */
+  .results-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin: 20px 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    text-align: center;
+    display: none;
+  }
+  .results-panel h2 { margin-bottom: 10px; }
+  .results-panel .big-score {
+    font-size: 64px;
+    font-weight: 800;
+    margin: 10px 0;
+  }
+  .results-panel .big-score.pass { color: #28a745; }
+  .results-panel .big-score.fail { color: #dc3545; }
+  .results-panel .message {
+    font-size: 16px;
+    margin: 10px 0 20px;
+    color: #555;
+  }
+
+  /* Success animation */
+  .confetti { display: none; }
+  .confetti.show { display: block; }
+
+  /* Attempt counter */
+  .attempt-badge {
+    display: inline-block;
+    background: #e8eef4;
+    color: #1a3a5c;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-top: 5px;
+  }
+
+  /* Submitted banner */
+  .submitted-banner {
+    background: linear-gradient(135deg, #28a745, #34ce57);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    display: none;
+  }
+  .submitted-banner h2 { font-size: 22px; margin-bottom: 5px; }
+  .submitted-banner p { opacity: 0.9; }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    .container { padding: 10px; }
+    .card, .question-card { padding: 15px 18px; }
+    .header h1 { font-size: 20px; }
+    .score-display { font-size: 28px; }
+    .btn { padding: 12px 30px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MAMA MARY FAMILY QUIZ</h1>
+  <div class="gold-line"></div>
+  <p>Family Charter & Mama Mary Holdings — Comprehension Test</p>
+</div>
+
+<div class="container">
+
+  <!-- STEP 1: Registration -->
+  <div id="registration" class="card">
+    <h2>Member Information</h2>
+    <div class="form-row">
+      <label>Full Name / Nom complet / Ya name / Le' yo</label>
+      <input type="text" id="memberName" placeholder="Enter your full name...">
+    </div>
+    <div class="form-row">
+      <label>Country / Pays / Nam</label>
+      <select id="memberCountry">
+        <option value="">— Select your country —</option>
+        <option value="Cameroon">Cameroon</option>
+        <option value="Canada">Canada</option>
+        <option value="Germany">Germany</option>
+        <option value="Ireland">Ireland</option>
+        <option value="South Africa">South Africa</option>
+        <option value="USA">USA</option>
+      </select>
+    </div>
+    <div class="btn-container">
+      <button class="btn btn-primary" onclick="startQuiz()">Start Quiz / Commencer</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Quiz -->
+  <div id="quizSection" class="hidden">
+    <div class="score-bar" id="scoreBar">
+      <div class="score-display" id="scoreDisplay">0/20</div>
+      <div class="score-label">Minimum to pass: 15/20</div>
+      <div class="progress-bar">
+        <div class="progress-fill neutral" id="progressFill" style="width: 0%"></div>
+      </div>
+      <div class="attempt-badge" id="attemptBadge">Attempt 1</div>
+    </div>
+
+    <div id="questionsContainer"></div>
+
+    <div class="btn-container">
+      <button class="btn btn-primary" id="checkBtn" onclick="checkAnswers()">Check My Answers / Verifier</button>
+    </div>
+
+    <!-- Results after checking -->
+    <div class="results-panel" id="resultsPanel">
+      <h2 id="resultsTitle"></h2>
+      <div class="big-score" id="bigScore"></div>
+      <div class="message" id="resultsMessage"></div>
+      <button class="btn btn-warning hidden" id="retryBtn" onclick="retryWrong()">Retry Wrong Answers / Reessayer</button>
+      <button class="btn btn-success hidden" id="submitBtn" onclick="submitResults()">Submit Results / Soumettre</button>
+    </div>
+
+    <!-- Final submitted banner -->
+    <div class="submitted-banner" id="submittedBanner">
+      <h2>RESULTS SUBMITTED!</h2>
+      <p>Your results have been sent to the family admin. Congratulations!</p>
+      <p>FR: Vos resultats ont ete envoyes. Felicitations!</p>
+      <p>PD: Dem don send ya result. Well done!</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =====================================================
+// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW
+// =====================================================
+var SHEET_URL = "PASTE_URL_HERE";
+// =====================================================
+
+var answers = {};
+var attempt = 1;
+var lockedQuestions = {};
+var memberName = "";
+var memberCountry = "";
+
+var QUESTIONS = [
+  {
+    num: 1, section: "A",
+    en: "How often do we meet, and on which day?",
+    fr: "A quelle frequence nous reunissons-nous, et quel jour ?",
+    pd: "How many taim we di meet, and which day?",
+    bm: "Pi tso' leh pi ju' leh ti ghee ju' mezwie?",
+    options: [
+      { en: "Every 2 weeks on Sunday", fr: "Toutes les 2 semaines le dimanche", pd: "Every 2 weeks for Sunday", bm: "Pah mfo' pu'a, tso' lameka" },
+      { en: "Once per month, 1st Saturday", fr: "Une fois par mois, le 1er samedi", pd: "One taim for month, di first Saturday", bm: "Pah pfu' ta', tso' samedi gwe ta' ne pfu'" },
+      { en: "Once per month, last Friday", fr: "Une fois par mois, le dernier vendredi", pd: "One taim for month, di last Friday", bm: "Pah pfu' ta', vandredi mfo' mesi'" },
+      { en: "Every week on Saturday", fr: "Chaque semaine le samedi", pd: "Every week for Saturday", bm: "Pah mfo' pu'a, tso' samedi" }
+    ],
+    correct: 1
+  },
+  {
+    num: 2, section: "A",
+    en: "What time is the meeting in Germany/Cameroon?",
+    fr: "A quelle heure est la reunion en Allemagne/Cameroun ?",
+    pd: "Which taim di meeting di start for Germany/Cameroon?",
+    bm: "Hee leh ti mezwie ko' le' Allemagne/Cameroun?",
+    options: [
+      { en: "3:00 PM", fr: "15h00", pd: "3 o'clock afternoon", bm: "3 hee mesi' jwi" },
+      { en: "6:00 PM", fr: "18h00", pd: "6 o'clock evening", bm: "6 hee mesi' jwi" },
+      { en: "8:00 PM", fr: "20h00", pd: "8 o'clock night", bm: "8 hee metsi'" },
+      { en: "10:00 PM", fr: "22h00", pd: "10 o'clock night", bm: "10 hee metsi'" }
+    ],
+    correct: 2
+  },
+  {
+    num: 3, section: "A",
+    en: "What is the fine for missing a meeting without 24-hour notice?",
+    fr: "Quelle est l'amende pour absence sans preavis de 24h ?",
+    pd: "If you no come meeting and you no tell person 24 hours before, how much you go pay?",
+    bm: "Si o pah zi mezwie o la ghee fa yo' hee 24, o pe' ndzem?",
+    options: [
+      { en: "No fine, just a warning", fr: "Pas d'amende, juste un avertissement", pd: "No fine, dem just go warn you", bm: "Ka' ndzem, pe we ghee fa yo'" },
+      { en: "5,000 XAF / 10 CAD / 8 EUR / 130 ZAR", fr: "5 000 XAF / 10 CAD / 8 EUR / 130 ZAR", pd: "5,000 XAF / 10 CAD / 8 EUR / 130 ZAR", bm: "5 000 XAF / 10 CAD / 8 EUR / 130 ZAR" },
+      { en: "10,000 XAF / 20 CAD / 15 EUR / 250 ZAR", fr: "10 000 XAF / 20 CAD / 15 EUR / 250 ZAR", pd: "10,000 XAF / 20 CAD / 15 EUR / 250 ZAR", bm: "10 000 XAF / 20 CAD / 15 EUR / 250 ZAR" },
+      { en: "20,000 XAF", fr: "20 000 XAF", pd: "20,000 XAF", bm: "20 000 XAF" }
+    ],
+    correct: 1
+  },
+  {
+    num: 4, section: "A",
+    en: "What happens after 3 consecutive unexcused absences?",
+    fr: "Que se passe-t-il apres 3 absences consecutives non excusees ?",
+    pd: "If you miss meeting 3 taims wey you no get excuse, wetin go happen?",
+    bm: "Si o la zi mezwie mentat tso' pu'a, bi leh ti pah?",
+    options: [
+      { en: "The member is removed from the family group", fr: "Le membre est retire du groupe", pd: "Dem go comot you for di family group", bm: "Pe ghee tso'si yo' le' group" },
+      { en: "A special family discussion is held", fr: "Une discussion familiale speciale est organisee", pd: "Di family go sit down tok about am", bm: "Mezwie ghee ju' po tsemsi ntsem wo'" },
+      { en: "The fine is doubled", fr: "L'amende est doublee", pd: "Di fine go double", bm: "Ndzem ghee pu'a" },
+      { en: "Nothing happens", fr: "Rien ne se passe", pd: "Nothing go happen", bm: "Ka' tso' ghee pah" }
+    ],
+    correct: 1
+  },
+  {
+    num: 5, section: "A",
+    en: "What is the privacy rule?",
+    fr: "Quelle est la regle de confidentialite ?",
+    pd: "Wetin be di privacy rule?",
+    bm: "Nkwe nda' ntsem bi leh?",
+    options: [
+      { en: "You can share family news with close friends", fr: "On peut partager avec des amis proches", pd: "You fit share family news with close friends", bm: "O ke fa ntsem mezwie po meso yo" },
+      { en: "What is said in the family STAYS in the family — no exceptions", fr: "Ce qui se dit en famille RESTE en famille — sans exception", pd: "Wetin we tok for family STAY for family — no exception", bm: "Ntsem ti pe fa le' mezwie KA' le' mezwie — ka' ntsi'" },
+      { en: "You can share positive news but not negative", fr: "On peut partager les bonnes nouvelles pas les mauvaises", pd: "You fit share good news but no bad news", bm: "O ke fa ntsem mbi pe ka' ntsem mbi zi" },
+      { en: "Privacy only applies during meetings", fr: "La confidentialite ne s'applique que pendant les reunions", pd: "Privacy na only for meeting taim", bm: "Nda' na pe le' hee mezwie ken" }
+    ],
+    correct: 1
+  },
+  {
+    num: 6, section: "A",
+    en: "How many votes are needed for a regular decision?",
+    fr: "Combien de votes faut-il pour une decision ordinaire ?",
+    pd: "How many vote we need for normal decision?",
+    bm: "Mevote ndzem leh po decision gwe'?",
+    options: [
+      { en: "5/10", fr: "5/10", pd: "5/10", bm: "5/10" },
+      { en: "6/10", fr: "6/10", pd: "6/10", bm: "6/10" },
+      { en: "8/10", fr: "8/10", pd: "8/10", bm: "8/10" },
+      { en: "10/10 (unanimous)", fr: "10/10 (unanimite)", pd: "10/10 (everybody must gree)", bm: "10/10" }
+    ],
+    correct: 1
+  },
+  {
+    num: 7, section: "A",
+    en: "How many votes are needed to change the Charter?",
+    fr: "Combien de votes faut-il pour modifier la Charte ?",
+    pd: "How many vote we need for change di Charter?",
+    bm: "Mevote ndzem leh po chenji Charte?",
+    options: [
+      { en: "6/10", fr: "6/10", pd: "6/10", bm: "6/10" },
+      { en: "7/10", fr: "7/10", pd: "7/10", bm: "7/10" },
+      { en: "8/10", fr: "8/10", pd: "8/10", bm: "8/10" },
+      { en: "10/10 (unanimous)", fr: "10/10 (unanimite)", pd: "10/10 (everybody must gree)", bm: "10/10" }
+    ],
+    correct: 3
+  },
+  {
+    num: 8, section: "A",
+    en: "Which platform do we use for meetings?",
+    fr: "Quelle plateforme utilisons-nous pour les reunions ?",
+    pd: "Which app we di use for meeting?",
+    bm: "Pi app ti ghee pah po mezwie?",
+    options: [
+      { en: "Zoom", fr: "Zoom", pd: "Zoom", bm: "Zoom" },
+      { en: "WhatsApp Video Call", fr: "Appel video WhatsApp", pd: "WhatsApp Video Call", bm: "WhatsApp Video Call" },
+      { en: "Google Meet", fr: "Google Meet", pd: "Google Meet", bm: "Google Meet" },
+      { en: "Skype", fr: "Skype", pd: "Skype", bm: "Skype" }
+    ],
+    correct: 1
+  },
+  {
+    num: 9, section: "A",
+    en: "If someone disagrees with you during a meeting, the rule says:",
+    fr: "Si quelqu'un n'est pas d'accord avec vous, la regle dit :",
+    pd: "If person no gree with you for meeting, di rule say:",
+    bm: "Si mo' la gree po yo le' mezwie, nkwe fa ghee:",
+    options: [
+      { en: "Keep quiet to avoid conflict", fr: "Se taire pour eviter le conflit", pd: "Keep ya mouth for avoid palava", bm: "Te' ndu' yo po ka' palava" },
+      { en: "Disagree with the idea, not the person", fr: "Contester l'idee, pas la personne", pd: "Fight di idea, no fight di person", bm: "Lu' ntsem, ka' lu' mo'" },
+      { en: "Let the President decide who is right", fr: "Laisser le President decider", pd: "Make di President decide who get right", bm: "President ghee fa we ti get right" },
+      { en: "Vote immediately to settle it", fr: "Voter immediatement pour trancher", pd: "Vote one taim for settle am", bm: "Vote ta'ta' po finish am" }
+    ],
+    correct: 1
+  },
+  {
+    num: 10, section: "A",
+    en: "What is the fine for a privacy violation (sharing screenshots outside)?",
+    fr: "Quelle est l'amende pour violation de la confidentialite ?",
+    pd: "If you share family screenshot outside, how much you go pay?",
+    bm: "Si o fa screenshot mezwie le' ntah, o pe' ndzem?",
+    options: [
+      { en: "5,000 XAF", fr: "5 000 XAF", pd: "5,000 XAF", bm: "5 000 XAF" },
+      { en: "10,000 XAF / 20 CAD / 15 EUR / 250 ZAR", fr: "10 000 XAF / 20 CAD / 15 EUR / 250 ZAR", pd: "10,000 XAF / 20 CAD / 15 EUR / 250 ZAR", bm: "10 000 XAF / 20 CAD / 15 EUR / 250 ZAR" },
+      { en: "50,000 XAF", fr: "50 000 XAF", pd: "50,000 XAF", bm: "50 000 XAF" },
+      { en: "Removal from the group", fr: "Exclusion du groupe", pd: "Dem go comot you for group", bm: "Pe ghee tso'si yo'" }
+    ],
+    correct: 1
+  },
+  {
+    num: 11, section: "B",
+    en: "What are the 3 Founding Principles of Mama Mary Holdings?",
+    fr: "Quels sont les 3 Principes Fondateurs ?",
+    pd: "Wetin be di 3 big rules for Mama Mary Holdings?",
+    bm: "Menkwe nentat gwe' Mama Mary Holdings bi leh?",
+    options: [
+      { en: "Save money, attend meetings, pay fines", fr: "Economiser, assister aux reunions, payer les amendes", pd: "Save money, come meeting, pay fine", bm: "Save ngu', zi mezwie, pe' amende" },
+      { en: "Never eat the seed, the family network IS the wealth, every meeting must produce action", fr: "Ne jamais manger la semence, le reseau familial EST la richesse, chaque reunion doit produire une action", pd: "No chop di seed, family network NA di money, every meeting must bring action", bm: "Ka' nyam gho' semence, reseau mezwie NA ngu', pah mezwie te a po action" },
+      { en: "Respect elders, pay on time, don't argue", fr: "Respecter les aines, payer a temps, ne pas discuter", pd: "Respect old people, pay on taim, no argue", bm: "Respect megwe', pe' le' hee, ka' lu'" },
+      { en: "Invest big, spend small, meet often", fr: "Investir gros, depenser peu, se reunir souvent", pd: "Invest big, spend small, meet plenty taim", bm: "Invest pu'a, depenser keke, ju' plenty taim" }
+    ],
+    correct: 1
+  },
+  {
+    num: 12, section: "B",
+    en: "How many roles does the family structure have?",
+    fr: "Combien de roles la structure familiale compte-t-elle ?",
+    pd: "How many role dey for di family structure?",
+    bm: "Merole ndzem leh dey for mezwie?",
+    options: [
+      { en: "10 roles (one per person)", fr: "10 roles (un par personne)", pd: "10 role (one for each person)", bm: "10" },
+      { en: "5 roles", fr: "5 roles", pd: "5 role", bm: "5" },
+      { en: "3 roles (Chair, Treasurer, Secretary)", fr: "3 roles (President, Tresorier, Secretaire)", pd: "3 role (Chair, Treasurer, Secretary)", bm: "3 (Chair, Tresorier, Secretaire)" },
+      { en: "7 roles", fr: "7 roles", pd: "7 role", bm: "7" }
+    ],
+    correct: 2
+  },
+  {
+    num: 13, section: "B",
+    en: "How much is the monthly Tontine contribution per person?",
+    fr: "Quel est le montant de la cotisation mensuelle pour la Tontine ?",
+    pd: "How much each person di pay every month for Tontine?",
+    bm: "Mo' pe' ndzem leh pah pfu' po Tontine?",
+    options: [
+      { en: "10,000 XAF", fr: "10 000 XAF", pd: "10,000 XAF", bm: "10 000 XAF" },
+      { en: "2,500 XAF", fr: "2 500 XAF", pd: "2,500 XAF", bm: "2 500 XAF" },
+      { en: "5,000 XAF (~7 EUR / ~12 CAD / ~130 ZAR)", fr: "5 000 XAF (~7 EUR / ~12 CAD / ~130 ZAR)", pd: "5,000 XAF (~7 EUR / ~12 CAD / ~130 ZAR)", bm: "5 000 XAF (~7 EUR / ~12 CAD / ~130 ZAR)" },
+      { en: "20,000 XAF", fr: "20 000 XAF", pd: "20,000 XAF", bm: "20 000 XAF" }
+    ],
+    correct: 2
+  },
+  {
+    num: 14, section: "B",
+    en: "How much is the total Tontine pot each month?",
+    fr: "Quel est le montant total de la cagnotte Tontine chaque mois ?",
+    pd: "How much be di total Njangi money every month?",
+    bm: "Ngu' Njangi tso' leh pah pfu'?",
+    options: [
+      { en: "25,000 XAF", fr: "25 000 XAF", pd: "25,000 XAF", bm: "25 000 XAF" },
+      { en: "50,000 XAF", fr: "50 000 XAF", pd: "50,000 XAF", bm: "50 000 XAF" },
+      { en: "100,000 XAF", fr: "100 000 XAF", pd: "100,000 XAF", bm: "100 000 XAF" },
+      { en: "500,000 XAF", fr: "500 000 XAF", pd: "500,000 XAF", bm: "500 000 XAF" }
+    ],
+    correct: 1
+  },
+  {
+    num: 15, section: "B",
+    en: "What are the 3 Money Pots?",
+    fr: "Quelles sont les 3 Caisses ?",
+    pd: "Wetin be di 3 Money Pots?",
+    bm: "Mecaisse nentat bi leh?",
+    options: [
+      { en: "Savings, Checking, Investment", fr: "Epargne, Compte courant, Investissement", pd: "Savings, Checking, Investment", bm: "Epargne, Compte, Investissement" },
+      { en: "Tontine, Emergency Fund, Investment Fund", fr: "Tontine, Caisse d'urgence, Fonds d'investissement", pd: "Tontine, Emergency Fund, Investment Fund", bm: "Tontine, Caisse d'urgence, Fonds d'investissement" },
+      { en: "Tontine, Project Fund, Salary Fund", fr: "Tontine, Caisse projets, Caisse salaires", pd: "Tontine, Project Fund, Salary Fund", bm: "Tontine, Caisse projets, Caisse salaires" },
+      { en: "Emergency, Education, Land", fr: "Urgence, Education, Terrain", pd: "Emergency, Education, Land", bm: "Urgence, Education, Terrain" }
+    ],
+    correct: 1
+  },
+  {
+    num: 16, section: "B",
+    en: "What happens to contributions in months 11 and 12?",
+    fr: "Que deviennent les cotisations des mois 11 et 12 ?",
+    pd: "Wetin happen with di money for month 11 and 12 afta Tontine don finish?",
+    bm: "Ngu' pfu' 11 po 12 ghee leh?",
+    options: [
+      { en: "Everyone gets a refund", fr: "Tout le monde est rembourse", pd: "Everybody get dem money back", bm: "Pe ghee pe' ngu' yo' back" },
+      { en: "They go to the Emergency Fund", fr: "Elles vont dans la Caisse d'urgence", pd: "E go enter di Emergency Fund", bm: "A ghee le' Caisse d'urgence" },
+      { en: "They go to the Treasurer", fr: "Elles vont au Tresorier", pd: "E go for di Treasurer", bm: "A ghee po Tresorier" },
+      { en: "No contributions in months 11-12", fr: "Pas de cotisation les mois 11-12", pd: "No contribution for month 11-12", bm: "Ka' cotisation pfu' 11-12" }
+    ],
+    correct: 1
+  },
+  {
+    num: 17, section: "B",
+    en: "What is the golden rule of the Investment Fund (Pot 3)?",
+    fr: "Quelle est la regle d'or du Fonds d'investissement ?",
+    pd: "Wetin be di golden rule for Investment Fund (Pot 3)?",
+    bm: "Nkwe OR Fonds d'investissement (Caisse 3) bi leh?",
+    options: [
+      { en: "Invest only in land", fr: "Investir uniquement dans le terrain", pd: "Invest only for land", bm: "Invest pe le' terrain ken" },
+      { en: "The principal is NEVER touched — only profits can be distributed", fr: "Le capital n'est JAMAIS touche — seuls les benefices sont distribues", pd: "Di capital no fit EVER touch — only profit fit share", bm: "Capital KA' pe TOUCH — profit ken ti pe ke share" },
+      { en: "Split equally every December", fr: "Partager egalement chaque decembre", pd: "Share am equal every December", bm: "Share equal pah Decembre" },
+      { en: "The Treasurer decides how to use it", fr: "Le Tresorier decide", pd: "Treasurer go decide how for use am", bm: "Tresorier ghee decide" }
+    ],
+    correct: 1
+  },
+  {
+    num: 18, section: "B",
+    en: "How many votes are needed to withdraw from the Emergency Fund?",
+    fr: "Combien de votes pour retirer de la Caisse d'urgence ?",
+    pd: "How many vote we need for take money from Emergency Fund?",
+    bm: "Mevote ndzem leh po comot ngu' le' Caisse d'urgence?",
+    options: [
+      { en: "5/10", fr: "5/10", pd: "5/10", bm: "5/10" },
+      { en: "6/10", fr: "6/10", pd: "6/10", bm: "6/10" },
+      { en: "7/10", fr: "7/10", pd: "7/10", bm: "7/10" },
+      { en: "10/10", fr: "10/10", pd: "10/10", bm: "10/10" }
+    ],
+    correct: 2
+  },
+  {
+    num: 19, section: "B",
+    en: "How many votes are needed to distribute profits from the Investment Fund?",
+    fr: "Combien de votes pour distribuer les benefices du Fonds d'investissement ?",
+    pd: "How many vote we need for share profit from Investment Fund?",
+    bm: "Mevote ndzem leh po share profit Fonds d'investissement?",
+    options: [
+      { en: "6/10", fr: "6/10", pd: "6/10", bm: "6/10" },
+      { en: "7/10", fr: "7/10", pd: "7/10", bm: "7/10" },
+      { en: "8/10", fr: "8/10", pd: "8/10", bm: "8/10" },
+      { en: "10/10", fr: "10/10", pd: "10/10", bm: "10/10" }
+    ],
+    correct: 2
+  },
+  {
+    num: 20, section: "B",
+    en: "The \"Diaspora Advantage\" means:",
+    fr: "L'Avantage Diaspora signifie :",
+    pd: "\"Diaspora Advantage\" mean say:",
+    bm: "Avantage Diaspora mean ghee:",
+    options: [
+      { en: "Members abroad send money home every month", fr: "Les membres a l'etranger envoient de l'argent chaque mois", pd: "Family for abroad must send money every month", bm: "Mezwie le' ntah te a po send ngu' pah pfu'" },
+      { en: "Our family in 6 countries is a business network — each country is a strategic asset", fr: "Notre famille dans 6 pays est un reseau d'affaires — chaque pays est un atout", pd: "We family for 6 country na like business network — each country na strategic asset", bm: "Mezwie yi' le' nam 6 na like reseau business — pah nam na atout" },
+      { en: "Only members in Europe make financial decisions", fr: "Seuls les membres en Europe prennent les decisions", pd: "Only family for Europe fit make money decision", bm: "Mezwie le' Europe ken ti decide ntsem ngu'" },
+      { en: "Members abroad don't need to attend meetings", fr: "Les membres a l'etranger n'ont pas besoin d'assister", pd: "Family for abroad no need come meeting", bm: "Mezwie le' ntah ka' need zi mezwie" }
+    ],
+    correct: 1
+  }
+];
+
+function startQuiz() {
+  memberName = document.getElementById("memberName").value.trim();
+  memberCountry = document.getElementById("memberCountry").value;
+  if (!memberName || !memberCountry) {
+    alert("Please enter your name and select your country.\nVeuillez entrer votre nom et choisir votre pays.");
+    return;
+  }
+  document.getElementById("registration").classList.add("hidden");
+  document.getElementById("quizSection").classList.remove("hidden");
+  renderQuestions();
+}
+
+function renderQuestions() {
+  var container = document.getElementById("questionsContainer");
+  container.innerHTML = "";
+  var currentSection = "";
+
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    var q = QUESTIONS[i];
+    if (q.section !== currentSection) {
+      currentSection = q.section;
+      var sectionTitle = currentSection === "A"
+        ? "PART A — Family Charter / Charte Familiale"
+        : "PART B — Mama Mary Holdings";
+      container.innerHTML += '<div class="section-header">' + sectionTitle + '</div>';
+    }
+
+    var isLocked = lockedQuestions[i] === true;
+    var cardClass = "question-card" + (isLocked ? " correct locked" : "");
+
+    var html = '<div class="' + cardClass + '" id="qcard-' + i + '">';
+
+    // Status badge
+    if (isLocked) {
+      html += '<span class="status-badge pass">CORRECT</span>';
+    }
+
+    // Question number + text
+    html += '<span class="q-number">' + q.num + '</span>';
+    html += '<div class="q-text">';
+    html += '<div class="lang-en">' + q.en + '</div>';
+    html += '<div class="lang-other"><span class="lang-label">FR</span>' + q.fr + '</div>';
+    html += '<div class="lang-other"><span class="lang-label">PD</span>' + q.pd + '</div>';
+    html += '<div class="lang-other"><span class="lang-label">BM</span>' + q.bm + '</div>';
+    html += '</div>';
+
+    // Options
+    html += '<ul class="options-list">';
+    for (var j = 0; j < q.options.length; j++) {
+      var opt = q.options[j];
+      var selectedClass = (answers[i] === j) ? " selected" : "";
+      if (isLocked && j === q.correct) selectedClass = " correct-answer";
+
+      html += '<li class="' + selectedClass + '" data-q="' + i + '" data-opt="' + j + '"';
+      if (!isLocked) html += ' onclick="selectOption(' + i + ',' + j + ')"';
+      html += '>';
+      html += '<strong>' + opt.en + '</strong>';
+      html += '<div class="opt-langs">';
+      html += '<span class="lang-label">FR</span>' + opt.fr;
+      html += ' <span class="lang-label">PD</span>' + opt.pd;
+      html += ' <span class="lang-label">BM</span>' + opt.bm;
+      html += '</div>';
+      html += '</li>';
+    }
+    html += '</ul></div>';
+    container.innerHTML += html;
+  }
+}
+
+function selectOption(qIndex, optIndex) {
+  if (lockedQuestions[qIndex]) return;
+  answers[qIndex] = optIndex;
+
+  // Update visual selection
+  var items = document.querySelectorAll('[data-q="' + qIndex + '"]');
+  for (var k = 0; k < items.length; k++) {
+    items[k].classList.remove("selected");
+  }
+  document.querySelector('[data-q="' + qIndex + '"][data-opt="' + optIndex + '"]').classList.add("selected");
+}
+
+function checkAnswers() {
+  // Check all unlocked questions are answered
+  var unanswered = [];
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    if (!lockedQuestions[i] && answers[i] === undefined) {
+      unanswered.push(QUESTIONS[i].num);
+    }
+  }
+  if (unanswered.length > 0) {
+    alert("Please answer all questions before checking.\nVeuillez repondre a toutes les questions.\n\nMissing: Q" + unanswered.join(", Q"));
+    return;
+  }
+
+  var score = 0;
+  var wrongOnes = [];
+
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    var card = document.getElementById("qcard-" + i);
+    if (lockedQuestions[i]) {
+      score++;
+      continue;
+    }
+
+    var isCorrect = answers[i] === QUESTIONS[i].correct;
+    if (isCorrect) {
+      score++;
+      lockedQuestions[i] = true;
+      card.classList.add("correct", "locked");
+
+      // Show correct answer highlight
+      var correctOpt = card.querySelector('[data-opt="' + QUESTIONS[i].correct + '"]');
+      if (correctOpt) correctOpt.classList.add("correct-answer");
+
+      // Add badge
+      if (!card.querySelector(".status-badge")) {
+        var badge = document.createElement("span");
+        badge.className = "status-badge pass";
+        badge.textContent = "CORRECT";
+        card.insertBefore(badge, card.firstChild);
+      }
+    } else {
+      wrongOnes.push(i);
+      card.classList.add("wrong");
+
+      // Highlight wrong selection
+      var wrongOpt = card.querySelector('[data-opt="' + answers[i] + '"]');
+      if (wrongOpt) wrongOpt.classList.add("wrong-answer");
+
+      // Add retry badge
+      var existingBadge = card.querySelector(".status-badge");
+      if (existingBadge) existingBadge.remove();
+      var badge = document.createElement("span");
+      badge.className = "status-badge fail";
+      badge.textContent = "WRONG";
+      card.insertBefore(badge, card.firstChild);
+    }
+  }
+
+  // Update score display
+  updateScoreDisplay(score);
+
+  // Show results panel
+  var panel = document.getElementById("resultsPanel");
+  var title = document.getElementById("resultsTitle");
+  var bigScore = document.getElementById("bigScore");
+  var message = document.getElementById("resultsMessage");
+  var retryBtn = document.getElementById("retryBtn");
+  var submitBtn = document.getElementById("submitBtn");
+  var checkBtn = document.getElementById("checkBtn");
+
+  panel.style.display = "block";
+  bigScore.textContent = score + "/20";
+
+  if (score >= 15) {
+    title.textContent = "CONGRATULATIONS! / FELICITATIONS!";
+    bigScore.className = "big-score pass";
+    message.innerHTML = "You passed the quiz!<br>FR: Vous avez reussi le quiz!<br>PD: You don pass di quiz!<br>BM: O ke pass quiz!";
+    retryBtn.classList.add("hidden");
+    submitBtn.classList.remove("hidden");
+    checkBtn.classList.add("hidden");
+  } else {
+    var remaining = 15 - score;
+    title.textContent = "NOT YET... / PAS ENCORE...";
+    bigScore.className = "big-score fail";
+    message.innerHTML = "You need " + remaining + " more correct answer" + (remaining > 1 ? "s" : "") + " to pass.<br>" +
+      "FR: Il vous faut encore " + remaining + " bonne" + (remaining > 1 ? "s" : "") + " reponse" + (remaining > 1 ? "s" : "") + ".<br>" +
+      "PD: You still need " + remaining + " more correct for pass.<br>" +
+      "BM: O need " + remaining + " more correct po pass.<br><br>" +
+      "<strong>" + wrongOnes.length + " question" + (wrongOnes.length > 1 ? "s" : "") + " to retry (highlighted in red)</strong>";
+    retryBtn.classList.remove("hidden");
+    submitBtn.classList.add("hidden");
+    checkBtn.classList.add("hidden");
+  }
+
+  // Scroll to results
+  panel.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function retryWrong() {
+  attempt++;
+  document.getElementById("attemptBadge").textContent = "Attempt " + attempt;
+
+  // Reset wrong questions for retry
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    if (!lockedQuestions[i]) {
+      delete answers[i];
+      var card = document.getElementById("qcard-" + i);
+      card.classList.remove("wrong");
+
+      // Remove wrong highlights and badges
+      var wrongItems = card.querySelectorAll(".wrong-answer");
+      for (var k = 0; k < wrongItems.length; k++) {
+        wrongItems[k].classList.remove("wrong-answer", "selected");
+      }
+      var badge = card.querySelector(".status-badge");
+      if (badge) badge.remove();
+    }
+  }
+
+  // Hide results, show check button
+  document.getElementById("resultsPanel").style.display = "none";
+  document.getElementById("checkBtn").classList.remove("hidden");
+
+  // Scroll to first wrong question
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    if (!lockedQuestions[i]) {
+      document.getElementById("qcard-" + i).scrollIntoView({ behavior: "smooth", block: "center" });
+      break;
+    }
+  }
+}
+
+function updateScoreDisplay(score) {
+  var display = document.getElementById("scoreDisplay");
+  var fill = document.getElementById("progressFill");
+  var pct = (score / 20) * 100;
+
+  display.textContent = score + "/20";
+  fill.style.width = pct + "%";
+
+  if (score >= 15) {
+    display.className = "score-display passing";
+    fill.className = "progress-fill passing";
+  } else {
+    display.className = "score-display failing";
+    fill.className = "progress-fill failing";
+  }
+}
+
+function submitResults() {
+  var submitBtn = document.getElementById("submitBtn");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Sending... / Envoi en cours...";
+
+  var data = {
+    name: memberName,
+    country: memberCountry,
+    score: 20,
+    attempts: attempt
+  };
+
+  // Count actual score
+  var score = 0;
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    if (lockedQuestions[i]) score++;
+  }
+  data.score = score;
+
+  if (SHEET_URL && SHEET_URL !== "PASTE_URL_HERE") {
+    fetch(SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(function() {
+      showSubmitted();
+    }).catch(function() {
+      showSubmitted();
+    });
+  } else {
+    showSubmitted();
+  }
+}
+
+function showSubmitted() {
+  document.getElementById("resultsPanel").style.display = "none";
+  document.getElementById("checkBtn").classList.add("hidden");
+
+  var banner = document.getElementById("submittedBanner");
+  banner.style.display = "block";
+  banner.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  // Lock everything
+  var allCards = document.querySelectorAll(".question-card");
+  for (var i = 0; i < allCards.length; i++) {
+    allCards[i].classList.add("locked");
+  }
+}
+</script>
+</body>
+</html>
