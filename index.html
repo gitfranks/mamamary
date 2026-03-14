@@ -918,7 +918,7 @@ function submitResults() {
   }
   data.score = score;
 
-  if (SHEET_URL && SHEET_URL !== "PASTE_URL_HERE") {
+  if (SHEET_URL && SHEET_URL !== "https://script.google.com/macros/s/AKfycbyUA6O3sTpJjiizcUxDDS93Vq4Op7b46w6L6XzCnPae0DoLh67vkkDXxs1JGngVdrLGrw/exec") {
     fetch(SHEET_URL, {
       method: "POST",
       mode: "no-cors",
