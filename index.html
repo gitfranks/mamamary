@@ -926,22 +926,23 @@ function submitResults() {
       "&score=" + data.score +
       "&attempts=" + data.attempts;
 
-    // Hidden iframe — most reliable for Google Apps Script
+    // Method 1: fetch GET with no-cors (most reliable — no preflight for GET)
+    fetch(url, { mode: "no-cors", method: "GET" }).catch(function() {});
+
+    // Method 2: hidden iframe as backup
     var iframe = document.createElement("iframe");
     iframe.style.display = "none";
     iframe.src = url;
     document.body.appendChild(iframe);
 
-    // Backup: script tag
-    var script = document.createElement("script");
-    script.src = url;
-    document.body.appendChild(script);
+    // Method 3: Image object (fires GET request, ignores response)
+    var img = new Image();
+    img.src = url;
 
     setTimeout(function() {
       showSubmitted();
       if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-      if (script.parentNode) script.parentNode.removeChild(script);
-    }, 4000);
+    }, 3000);
   } else {
     showSubmitted();
   }
